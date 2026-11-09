@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>BlobTrack Studio — blob tracking visual effects in your browser</title>
+<meta name="description" content="Turn a webcam, video file or the built-in motion field into live blob-tracking art. Tune detection, shapes, links, labels and effects, then record or export video.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0d11'/%3E%3Ccircle cx='13' cy='16' r='5' fill='%23c8ff4d'/%3E%3Ccircle cx='22' cy='12' r='2.4' fill='%2363e6ff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.2 20.5 12 7 19.8Z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 4.5v15M15.5 4.5v15"/></symbol>
+  <symbol id="i-record" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3.5 7.5h3l1.6-2h6.8l1.6 2h3a1.5 1.5 0 0 1 1.5 1.5v9a1.5 1.5 0 0 1-1.5 1.5h-16A1.5 1.5 0 0 1 2 18V9a1.5 1.5 0 0 1 1.5-1.5Z"/><circle cx="11.5" cy="13" r="3.4"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4.5m0 0L7.5 9M12 4.5 16.5 9"/><path d="M4 15.5v3A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4.5V16m0 0 4.5-4.5M12 16l-4.5-4.5"/><path d="M4 15.5v3A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-3"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5l1.9 5.2 5.2 1.9-5.2 1.9L12 17.7l-1.9-5.2-5.2-1.9 5.2-1.9Z"/><path d="M18.5 16.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8Z"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.6" cy="9.4" r="1.6"/><path d="m4.5 17 4.6-4.4 3.4 3.1 2.6-2.3 4.4 3.6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 10.8v5.4"/><circle cx="12" cy="7.8" r=".9" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3.2c4.8 0 6.8 10 11.6 10H21"/><path d="m18 13.8 3 3.2-3 3.2"/><path d="M3 17h3.2c1.8 0 3.2-1.4 4.6-3.1"/><path d="M13.2 9.7C14.3 8.1 15.5 7 17.8 7H21"/><path d="m18 3.8 3 3.2-3 3.2"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3.5h11l3 3V19a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19V5a1.5 1.5 0 0 1 1-1.5Z"/><path d="M8 3.5v5h7v-5M8 20.5v-5.5h8v5.5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6.5h16M9 6.5V4.8a1.3 1.3 0 0 1 1.3-1.3h3.4A1.3 1.3 0 0 1 15 4.8v1.7M6.5 6.5l.8 12a1.5 1.5 0 0 0 1.5 1.4h6.4a1.5 1.5 0 0 0 1.5-1.4l.8-12"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path d="M4 11V9.5A3.5 3.5 0 0 1 7.5 6H20"/><path d="m17 3 3 3-3 3"/><path d="M20 13v1.5a3.5 3.5 0 0 1-3.5 3.5H4"/><path d="m7 21-3-3 3-3"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4Z"/><path d="m16 9.5 5 5m0-5-5 5"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5.5l10-2v12"/><circle cx="6.5" cy="18" r="2.6"/><circle cx="16.5" cy="15.5" r="2.6"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M21.5 12h-2.2M4.7 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3"/></symbol>
+  <symbol id="i-zen" viewBox="0 0 24 24"><path d="M8 3H4.5A1.5 1.5 0 0 0 3 4.5V8M16 3h3.5A1.5 1.5 0 0 1 21 4.5V8M21 16v3.5a1.5 1.5 0 0 1-1.5 1.5H16M3 16v3.5A1.5 1.5 0 0 0 4.5 21H8"/></symbol>
+</svg>
+
+<div class="app" id="app">
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="BlobTrack Studio">
+      <span class="brand-mark"><i></i><i></i><i></i></span>
+      <span class="brand-name">BlobTrack <em>Studio</em></span>
+    </a>
+
+    <div class="presets" id="presetBar" aria-label="Looks"></div>
+
+    <div class="top-actions">
+      <button class="btn icon-only" id="btnInfo" title="About & shortcuts" aria-label="About and shortcuts">
+        <svg><use href="#i-info"/></svg>
+      </button>
+      <button class="btn ghost" id="btnSnapshot" title="Save current frame as PNG (S)">
+        <svg><use href="#i-image"/></svg><span>Snapshot</span>
+      </button>
+      <button class="btn rec" id="btnRecord" title="Start / stop recording (R)">
+        <span class="rec-dot"></span><span id="btnRecordLabel">Record</span>
+      </button>
+      <button class="btn primary" id="btnExport" title="Export video">
+        <svg><use href="#i-download"/></svg><span>Export</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="sidebar" id="sidebar" aria-label="Controls">
+      <button class="sheet-close" id="btnClosePanel" aria-label="Close controls">
+        <svg><use href="#i-close"/></svg>
+      </button>
+
+      <div class="side-scroll">
+        <section class="source-panel">
+          <div class="seg seg-3" data-set="source" role="group" aria-label="Video source">
+            <button data-value="demo" class="is-active"><svg><use href="#i-spark"/></svg>Demo</button>
+            <button data-value="camera"><svg><use href="#i-camera"/></svg>Camera</button>
+            <button data-value="video"><svg><use href="#i-upload"/></svg>Video</button>
+          </div>
+          <div class="source-meta"><span id="sourceMeta">Built-in motion field</span><span class="dim" id="sourceDims">1280×720</span></div>
+
+          <div class="row" id="cameraRow" hidden>
+            <select id="cameraSelect" class="select" aria-label="Camera device"></select>
+          </div>
+
+          <div class="row two">
+            <label class="inline-field"><span>Fit</span>
+              <select class="select" data-bind="fit">
+                <option value="cover">Cover</option>
+                <option value="contain">Contain</option>
+              </select>
+            </label>
+            <label class="check compact"><input type="checkbox" data-bind="mirror"><span>Mirror</span></label>
+          </div>
+
+          <button class="btn wide" id="btnUploadVideo"><svg><use href="#i-upload"/></svg>Choose video file…</button>
+          <input type="file" id="videoFile" accept="video/*" hidden>
+        </section>
+
+        <details class="panel" open>
+          <summary><span class="panel-dot"></span>Track<svg class="chevron"><use href="#i-chevron"/></svg></summary>
+          <div class="panel-body">
+            <label class="ctl">
+              <span class="ctl-head"><span>Threshold</span><output data-out="threshold"></output></span>
+              <input type="range" min="0" max="255" step="1" data-bind="threshold">
+            </label>
+            <label class="inline-field"><span>Invert signal</span>
+              <select class="select" data-bind="invertMode">
+                <option value="off">Off — bright areas</option>
+                <option value="luminance">Luminance — dark blobs</option>
+                <option value="red">Red channel</option>
+                <option value="green">Green channel</option>
+                <option value="blue">Blue channel</option>
+                <option value="saturation">Saturation — muted areas</option>
+              </select>
+            </label>
+            <div class="hint">Inverts the signal used for detection before thresholding. Luminance is the classic “track dark blobs” mode.</div>
+            <label class="ctl">
+              <span class="ctl-head"><span>Minimum blob</span><output data-out="minSize"></output></span>
+              <input type="range" min="0" max="100" step="1" data-bind="minSize">
+            </label>
+            <label class="ctl">
+              <span class="ctl-head"><span>Maximum blobs</span><output data-out="maxBlobs"></output></span>
+              <input type="range" min="1" max="60" step="1" data-bind="maxBlobs">
+            </label>
+            <label class="ctl">
+              <span class="ctl-head"><span>Smoothing</span><output data-out="smoothing"></output></span>
+              <input type="range" min="0" max="90" step="1" data-bind="smoothing">
+            </label>
+            <div class="row two">
+              <label class="inline-field"><span>Detect at</span>
+                <select class="select" data-bind="detRes">
+                  <option value="low">Fast</option>
+                  <option value="medium">Balanced</option>
+                  <option value="high">Precise</option>
+                </select>
+              </label>
+              <button class="btn tiny" id="btnRoi"><svg><use href="#i-target"/></svg>Set ROI</button>
+            </div>
+            <div class="hint" id="roiHint" hidden>Drag a box on the stage. <button class="link" id="btnClearRoi">Clear ROI</button></div>
+          </div>
+        </details>
+
+        <details class="panel" open>
+          <summary><span class="panel-dot"></span>Shapes<svg class="chevron"><use href="#i-chevron"/></svg></summary>
+          <div class="panel-body">
+            <div class="shape-grid" id="shapeGrid">
+              <button data-set="shape" data-value="circle" class="shape-btn is-active" title="Circle"><span class="sh sh-circle"></span><em>Circle</em></button>
+              <button data-set="shape" data-value="square" class="shape-btn" title="Square"><span class="sh sh-square"></span><em>Square</em></button>
+              <button data-set="shape" data-value="diamond" class="shape-btn" title="Diamond"><span class="sh sh-diamond"></span><em>Diamond</em></button>
+              <button data-set="shape" data-value="hex" class="shape-btn" title="Hexagon"><span class="sh sh-hex"></span><em>Hex</em></button>
+              <button data-set="shape" data-value="star" class="shape-btn" title="Star"><span class="sh sh-star"></span><em>Star</em></button>
+              <button data-set="shape" data-value="target" class="shape-btn" title="Target"><span class="sh sh-target"></span><em>Target</em></button>
+              <button data-set="shape" data-value="cross" class="shape-btn" title="Cross"><span class="sh sh-cross"></span><em>Cross</em></button>
+              <button data-set="shape" data-value="xframe" class="shape-btn" title="X frame"><span class="sh sh-x"></span><em>X frame</em></button>
+              <button data-set="shape" data-value="bracket" class="shape-btn" title="Brackets"><span class="sh sh-bracket"></span><em>Bracket</em></button>
+              <button data-set="shape" data-value="lframe" class="shape-btn" title="L frame"><span class="sh sh-l"></span><em>L frame</em></button>
+              <button data-set="shape" data-value="dot" class="shape-btn" title="Dot"><span class="sh sh-dot"></span><em>Dot</em></button>
+              <button data-set="shape" data-value="ring" class="shape-btn" title="Ring"><span class="sh sh-ring"></span><em>Ring</em></button>
+            </div>
+            <label class="ctl">
+              <span class="ctl-head"><span>Size</span><output data-out="blobSize"></output></span>
+              <input type="range" min="10" max="300" step="1" data-bind="blobSize">
+            </label>
+            <label class="check"><input type="checkbox" data-bind="uniform"><span>Same size for all</span></label>
+            <div class="row two">
+              <label class="ctl slim">
+                <span class="ctl-head"><span>Stroke</span><output data-out="stroke"></output></span>
+                <input type="range" min="0.5" max="12" step="0.5" data-bind="stroke">
+              </label>
+              <label class="ctl slim">
+                <span class="ctl-head"><span>Glow</span><output data-out="glow"></output></span>
+                <input type="range" min="0" max="60" step="1" data-bind="glow">
+              </label>
+            </div>
+            <div class="row two">
+              <label class="check compact"><input type="checkbox" data-bind="fill"><span>Fill</span></label>
+              <label class="ctl slim" id="fillOpacityRow">
+                <span class="ctl-head"><span>Opacity</span><output data-out="fillOpacity"></output></span>
+                <input type="range" min="2" max="100" step="1" data-bind="fillOpacity">
+              </label>
+            </div>
+            <label class="check"><input type="checkbox" data-bind="separateColors"><span>Color each blob separately</span></label>
+            <div class="row two" id="colorRow">
+              <label class="inline-field color-field"><span>Color</span><input type="color" data-bind="color"></label>
+              <label class="inline-field"><span>Palette</span>
+                <select class="select" data-bind="palette">
+                  <option value="neon">Neon</option>
+                  <option value="candy">Candy</option>
+                  <option value="ice">Ice</option>
+                  <option value="thermal">Thermal</option>
+                  <option value="sunset">Sunset</option>
+                  <option value="spectrum">Spectrum</option>
+                  <option value="mono">Mono</option>
+                </select>
+              </label>
+            </div>
+            <label class="inline-field"><span>Invert blobs</span>
+              <select class="select" data-bind="blobInvert">
+                <option value="off">Off — original colors</option>
+                <option value="negative">Negative — invert RGB</option>
+                <option value="luminance">Luminance</option>
+                <option value="red">Red channel</option>
+                <option value="green">Green channel</option>
+                <option value="blue">Blue channel</option>
+                <option value="saturation">Saturation</option>
+                <option value="hue">Hue rotate</option>
+                <option value="cutout">Cutout — inverted fill</option>
+              </select>
+            </label>
+            <div class="hint">Inverts the blob shapes themselves. Cutout fills the stage and knocks the blobs out using the fill opacity.</div>
+            <div class="row two">
+              <label class="check compact"><input type="checkbox" data-bind="dashed"><span>Dashed</span></label>
+              <label class="ctl slim">
+                <span class="ctl-head"><span>Dash gap</span><output data-out="dashGap"></output></span>
+                <input type="range" min="1" max="40" step="1" data-bind="dashGap">
+              </label>
+            </div>
+          </div>
+        </details>
+
+        <details class="panel" open>
+          <summary><span class="panel-dot"></span>Connections<svg class="chevron"><use href="#i-chevron"/></svg></summary>
+          <div class="panel-body">
+            <label class="inline-field"><span>Style</span>
+              <select class="select" data-bind="connection">
+                <option value="off">Off</option>
+                <option value="nearest">Nearest neighbor</option>
+                <option value="chain">Chain</option>
+                <option value="mesh">Mesh</option>
+                <option value="constellation">Constellation (MST)</option>
+              </select>
+            </label>
+            <div id="linkOptions">
+              <label class="ctl">
+                <span class="ctl-head"><span>Density</span><output data-out="density"></output></span>
+                <input type="range" min="0" max="100" step="1" data-bind="density">
+              </label>
+              <label class="ctl" id="distanceRow">
+                <span class="ctl-head"><span>Max distance</span><output data-out="linkDistance"></output></span>
+                <input type="range" min="5" max="100" step="1" data-bind="linkDistance">
+              </label>
+              <div class="row two">
+                <label class="inline-field color-field"><span>Line</span><input type="color" data-bind="linkColor"></label>
+                <label class="inline-field"><span>Anchors</span>
+                  <select class="select" data-bind="connectPoint">
+                    <option value="center">Centers</option>
+                    <option value="edge">Edges</option>
+                  </select>
+                </label>
+              </div>
+              <label class="ctl">
+                <span class="ctl-head"><span>Line width</span><output data-out="linkWidth"></output></span>
+                <input type="range" min="0.5" max="8" step="0.5" data-bind="linkWidth">
+              </label>
+              <div class="row two">
+                <label class="check compact"><input type="checkbox" data-bind="curve"><span>Curved</span></label>
+                <label class="check compact"><input type="checkbox" data-bind="linkDashed"><span>Dashed</span></label>
+              </div>
+              <label class="check"><input type="checkbox" data-bind="linkUseBlobColors"><span>Use blob colors</span></label>
+            </div>
+          </div>
+        </details>
+
+        <details class="panel">
+          <summary><span class="panel-dot"></span>Labels<svg class="chevron"><use href="#i-chevron"/></svg></summary>
+          <div class="panel-body">
+            <label class="check"><input type="checkbox" data-bind="showLabels"><span>Show blob labels</span></label>
+            <div id="labelOptions">
+              <div class="row two">
+                <label class="inline-field"><span>Content</span>
+                  <select class="select" data-bind="labelMode">
+                    <option value="id">Track ID</option>
+                    <option value="count">Number</option>
+                    <option value="name">Callsign</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </label>
+                <label class="inline-field"><span>Position</span>
+                  <select class="select" data-bind="labelPos">
+                    <option value="below">Below</option>
+                    <option value="center">Center</option>
+                    <option value="above">Above</option>
+                  </select>
+                </label>
+              </div>
+              <label class="inline-field" id="labelTextRow" hidden><span>Text</span><input class="input" type="text" data-bind="labelText" maxlength="24" placeholder="BLOB"></label>
+              <div class="row two">
+                <label class="ctl slim">
+                  <span class="ctl-head"><span>Size</span><output data-out="labelSize"></output></span>
+                  <input type="range" min="6" max="48" step="1" data-bind="labelSize">
+                </label>
+                <label class="inline-field color-field"><span>Color</span><input type="color" data-bind="labelColor"></label>
+              </div>
+            </div>
+            <hr class="rule">
+            <label class="inline-field"><span>Caption</span><input class="input" type="text" data-bind="caption" maxlength="40" placeholder="Optional scene caption"></label>
+            <div class="row two">
+              <label class="inline-field"><span>Placement</span>
+                <select class="select" data-bind="captionPos">
+                  <option value="top">Top</option>
+                  <option value="center">Center</option>
+                  <option value="bottom">Bottom</option>
+                </select>
+              </label>
+              <label class="ctl slim">
+                <span class="ctl-head"><span>Size</span><output data-out="captionSize"></output></span>
+                <input type="range" min="10" max="72" step="1" data-bind="captionSize">
+              </label>
+            </div>
+          </div>
+        </details>
+
+        <details class="panel">
+          <summary><span class="panel-dot"></span>Effects<svg class="chevron"><use href="#i-chevron"/></svg></summary>
+          <div class="panel-body">
+            <div class="effect-grid" id="effectGrid">
+              <button data-set="effect" data-value="none" class="is-active">None</button>
+              <button data-set="effect" data-value="blur">Blur</button>
+              <button data-set="effect" data-value="pixelate">Pixelate</button>
+              <button data-set="effect" data-value="dither">Dither</button>
+              <button data-set="effect" data-value="thermal">Thermal</button>
+              <button data-set="effect" data-value="xray">X-Ray</button>
+              <button data-set="effect" data-value="edge">Edge</button>
+              <button data-set="effect" data-value="water">Water</button>
+              <button data-set="effect" data-value="glitch">Glitch</button>
+              <button data-set="effect" data-value="glow">Bloom</button>
+              <button data-set="effect" data-value="invert">Invert</button>
+              <button data-set="effect" data-value="backdrop">Backdrop</button>
+              <button data-set="effect" data-value="zoom">Zoom</button>
+            </div>
+            <label class="inline-field" id="invertStyleRow" hidden><span>Invert style</span>
+              <select class="select" data-bind="invertStyle">
+                <option value="negative">Full negative</option>
+                <option value="luminance">Luminance</option>
+                <option value="red">Red channel</option>
+                <option value="green">Green channel</option>
+                <option value="blue">Blue channel</option>
+                <option value="saturation">Saturation</option>
+                <option value="hue">Hue rotate</option>
+              </select>
+            </label>
+            <label class="ctl">
+              <span class="ctl-head"><span>Effect amount</span><output data-out="effectStrength"></output></span>
+              <input type="range" min="0" max="100" step="1" data-bind="effectStrength">
+            </label>
+            <label class="ctl">
+              <span class="ctl-head"><span>Film grain</span><output data-out="grain"></output></span>
+              <input type="range" min="0" max="100" step="1" data-bind="grain">
+            </label>
+            <div class="check-grid">
+              <label class="check compact"><input type="checkbox" data-bind="scanlines"><span>Scanlines</span></label>
+              <label class="check compact"><input type="checkbox" data-bind="grid"><span>Grid</span></label>
+              <label class="check compact"><input type="checkbox" data-bind="vignette"><span>Vignette</span></label>
+              <label class="check compact"><input type="checkbox" data-bind="particles"><span>Particles</span></label>
+              <label class="check compact"><input type="checkbox" data-bind="frame"><span>Frame</span></label>
+              <label class="check compact"><input type="checkbox" data-bind="blink"><span>Pulse</span></label>
+            </div>
+          </div>
+        </details>
+
+        <details class="panel">
+          <summary><span class="panel-dot"></span>Audio<svg class="chevron"><use href="#i-chevron"/></svg></summary>
+          <div class="panel-body">
+            <div class="row two">
+              <button class="btn" id="btnMusic"><svg><use href="#i-music"/></svg>Music file…</button>
+              <button class="btn" id="btnClearMusic"><svg><use href="#i-trash"/></svg>Clear</button>
+            </div>
+            <input type="file" id="musicFile" accept="audio/*" hidden>
+            <div class="hint" id="musicMeta">No music track loaded</div>
+            <label class="ctl">
+              <span class="ctl-head"><span>Music level</span><output data-out="musicVolume"></output></span>
+              <input type="range" min="0" max="100" step="1" data-bind="musicVolume">
+            </label>
+            <label class="check"><input type="checkbox" data-bind="audioLoop"><span>Loop music</span></label>
+            <div class="row two">
+              <label class="inline-field"><span>Ambient synth</span>
+                <select class="select" id="toneSelect">
+                  <option value="off">Off</option>
+                  <option value="pulse">Deep pulse</option>
+                  <option value="arp">Neon arp</option>
+                  <option value="drone">Drift drone</option>
+                </select>
+              </label>
+              <label class="ctl slim">
+                <span class="ctl-head"><span>Level</span><output id="toneLevelOut">35</output></span>
+                <input type="range" min="0" max="100" step="1" id="toneLevel" value="35">
+              </label>
+            </div>
+            <label class="check"><input type="checkbox" id="micToggle"><span>Record microphone</span></label>
+            <div class="hint">Mic is only sent to the recording, not the speakers.</div>
+          </div>
+        </details>
+
+        <details class="panel">
+          <summary><span class="panel-dot"></span>Output<svg class="chevron"><use href="#i-chevron"/></svg></summary>
+          <div class="panel-body">
+            <div class="row two">
+              <label class="inline-field"><span>Aspect</span>
+                <select class="select" data-bind="aspect">
+                  <option value="16:9">16 : 9</option>
+                  <option value="9:16">9 : 16</option>
+                  <option value="1:1">1 : 1</option>
+                  <option value="4:3">4 : 3</option>
+                </select>
+              </label>
+              <label class="inline-field"><span>Resolution</span>
+                <select class="select" data-bind="resolution">
+                  <option value="720">720p</option>
+                  <option value="1080">1080p</option>
+                  <option value="1440">1440p</option>
+                </select>
+              </label>
+            </div>
+            <div class="row two">
+              <label class="inline-field"><span>Frame rate</span>
+                <select class="select" data-bind="fps">
+                  <option value="30">30 fps</option>
+                  <option value="60">60 fps</option>
+                </select>
+              </label>
+              <label class="inline-field"><span>Bitrate</span>
+                <select class="select" data-bind="exportQuality">
+                  <option value="standard">Standard</option>
+                  <option value="high">High</option>
+                  <option value="max">Maximum</option>
+                </select>
+              </label>
+            </div>
+            <label class="check"><input type="checkbox" data-bind="watermark"><span>“BLOBTRACK” watermark</span></label>
+            <div class="hint" id="formatHint">MP4 where supported, otherwise WebM.</div>
+            <div class="row two">
+              <button class="btn primary" id="btnExport2"><svg><use href="#i-download"/></svg>Export video</button>
+              <button class="btn" id="btnSnapshot2"><svg><use href="#i-image"/></svg>Save frame</button>
+            </div>
+          </div>
+        </details>
+
+        <div class="side-tip">
+          <svg><use href="#i-spark"/></svg>
+          <p>Tip: lower the threshold to catch dimmer motion. Raise the minimum blob size to ignore noise.</p>
+        </div>
+      </div>
+
+      <div class="side-foot">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="sideStatus">Engine ready</span>
+        <span class="side-res" id="sideRes">1920×1080</span>
+      </div>
+    </aside>
+
+    <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+
+    <section class="stage-col" id="stageCol">
+      <div class="stage-shell">
+        <div class="stage" id="stage">
+          <canvas id="canvas" width="1920" height="1080"></canvas>
+
+          <div class="stage-top">
+            <span class="hud-pill live" id="sourcePill">DEMO</span>
+            <span class="hud-pill" id="resPill">1080P</span>
+            <button class="hud-pill hud-btn" id="btnZen" title="Zen mode (H)"><svg><use href="#i-zen"/></svg></button>
+          </div>
+
+          <div class="stage-stats">
+            <div><strong id="statFps">60</strong><span>FPS</span></div>
+            <div><strong id="statBlobs">0</strong><span>BLOBS</span></div>
+          </div>
+
+          <div class="rec-pill" id="recPill" hidden>
+            <span class="pulse"></span><span class="rec-label" id="recLabel">REC</span>
+            <span class="mono" id="recTime">00:00</span>
+            <button class="rec-stop" id="btnRecStop">Stop</button>
+          </div>
+
+          <div class="drop-veil" id="dropVeil">
+            <div><svg><use href="#i-upload"/></svg><strong>Drop it here</strong><small>Video or audio file</small></div>
+          </div>
+
+          <div class="roi-tip" id="roiTip" hidden>Drag a tracking region · Esc to cancel</div>
+
+          <button class="mobile-controls" id="btnMobilePanel"><svg><use href="#i-settings"/></svg>Controls</button>
+        </div>
+
+        <div class="transport">
+          <button class="icon-btn" id="btnPlay" title="Play / pause (Space)" aria-label="Play or pause">
+            <svg id="playIcon"><use href="#i-play"/></svg>
+          </button>
+          <span class="time mono" id="timeNow">00:00</span>
+          <input type="range" class="seek" id="seek" min="0" max="1000" value="0" step="1" aria-label="Seek">
+          <span class="time mono" id="timeTotal">--:--</span>
+          <button class="icon-btn small" id="btnLoop" title="Loop video" aria-label="Loop video"><svg><use href="#i-loop"/></svg></button>
+          <select class="select speed" id="speed" aria-label="Playback speed">
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+          <button class="icon-btn small" id="btnMute" title="Mute preview (M)" aria-label="Mute preview">
+            <svg id="muteIcon"><use href="#i-volume"/></svg>
+          </button>
+        </div>
+
+        <div class="mobile-looks" id="mobileLooks" aria-label="Looks"></div>
+      </div>
+      <p class="stage-note">Drag &amp; drop a video · <kbd>Space</kbd> play · <kbd>H</kbd> hide UI · <kbd>R</kbd> record · <kbd>S</kbd> snapshot</p>
+    </section>
+  </main>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<dialog class="modal" id="exportDlg">
+  <form method="dialog" class="modal-inner">
+    <header class="modal-head">
+      <div><h2>Export video</h2><p>Records the canvas, effects and audio in real time.</p></div>
+      <button class="icon-btn small" value="cancel" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+    </header>
+    <div class="export-grid">
+      <div><span>Source</span><strong id="exSource">Demo</strong></div>
+      <div><span>Frame</span><strong id="exSize">1920 × 1080</strong></div>
+      <div><span>Rate</span><strong id="exFps">60 fps</strong></div>
+      <div><span>Format</span><strong id="exFormat">WebM</strong></div>
+    </div>
+    <label class="inline-field" id="durationRow"><span>Length</span>
+      <select class="select" id="exportDuration">
+        <option value="5">5 seconds</option>
+        <option value="10" selected>10 seconds</option>
+        <option value="15">15 seconds</option>
+        <option value="20">20 seconds</option>
+        <option value="30">30 seconds</option>
+      </select>
+    </label>
+    <p class="hint" id="exportNote">Demo export records a fixed-length clip.</p>
+    <div class="modal-actions">
+      <button class="btn" value="cancel">Cancel</button>
+      <button class="btn primary" id="btnStartExport" value="default"><svg><use href="#i-record"/></svg>Start export</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="modal" id="presetDlg">
+  <form method="dialog" class="modal-inner" id="presetForm">
+    <header class="modal-head">
+      <div><h2>Save this look</h2><p>Creates a preset in this browser.</p></div>
+      <button class="icon-btn small" value="cancel" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+    </header>
+    <label class="inline-field"><span>Name</span><input class="input" id="presetName" maxlength="24" placeholder="My look" autocomplete="off"></label>
+    <div class="modal-actions">
+      <button class="btn" value="cancel">Cancel</button>
+      <button class="btn primary" id="btnSavePreset" value="default">Save preset</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog class="modal info-modal" id="infoDlg">
+  <form method="dialog" class="modal-inner">
+    <header class="modal-head">
+      <div><h2>BlobTrack Studio</h2><p>A blob-tracking playground for live visuals.</p></div>
+      <button class="icon-btn small" value="cancel" aria-label="Close"><svg><use href="#i-close"/></svg></button>
+    </header>
+    <div class="info-body">
+      <p>Bright areas of the source become <strong>blobs</strong>. Each blob gets a stable track ID, then you decide how it is drawn, linked and labelled. Everything is composited in real time on the canvas, so what you see is what gets recorded.</p>
+      <h3>Quick start</h3>
+      <ol>
+        <li>Pick <strong>Camera</strong>, drop a <strong>video</strong>, or start with the built-in motion field.</li>
+        <li>Adjust <strong>Threshold</strong> until only the interesting shapes are tracked. <strong>Track dark blobs</strong> flips the logic.</li>
+        <li>Use <strong>Set ROI</strong> to restrict tracking to a region.</li>
+        <li>Choose a look up top, then fine-tune shapes, links, labels and effects.</li>
+        <li><strong>Record</strong> for a manual take, or <strong>Export</strong> for a guided capture.</li>
+      </ol>
+      <h3>Shortcuts</h3>
+      <div class="keys">
+        <div><kbd>Space</kbd><span>Play / pause</span></div>
+        <div><kbd>R</kbd><span>Start / stop recording</span></div>
+        <div><kbd>S</kbd><span>Snapshot PNG</span></div>
+        <div><kbd>H</kbd><span>Zen mode</span></div>
+        <div><kbd>M</kbd><span>Mute preview</span></div>
+        <div><kbd>Esc</kbd><span>Cancel ROI / close dialogs</span></div>
+      </div>
+      <p class="hint">Tip: recording captures the canvas only — the interface never appears in your export. MP4 is used when the browser supports it, otherwise WebM.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn primary" value="cancel">Got it</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
